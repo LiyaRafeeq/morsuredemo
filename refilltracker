@@ -1,139 +1,438 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MORSURE · Refill Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Futura;}
-.wrap{padding:1.5rem;max-width:480px;margin:0 auto;}
-.case-outer{border:1.5px solid var(--color-border-secondary);border-radius:16px;padding:20px 18px 14px;background:var(--color-background-primary);position:relative;}
-.case-shelf{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;min-height:52px;}
-.slot{width:100%;aspect-ratio:1;border-radius:50%;border:1.5px dashed var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;transition:all 0.35s cubic-bezier(.34,1.56,.64,1);}
-.slot.filled{border-style:solid;}
-.macaron{width:78%;aspect-ratio:1;border-radius:50%;position:relative;transition:all 0.35s cubic-bezier(.34,1.56,.64,1);transform:scale(0);}
-.macaron.show{transform:scale(1);}
-.macaron-top{width:100%;height:50%;border-radius:50% 50% 0 0;position:absolute;top:0;}
-.macaron-fill{width:88%;height:22%;background:#fff9f0;position:absolute;top:39%;left:6%;border-radius:2px;}
-.macaron-bot{width:100%;height:50%;border-radius:0 0 50% 50%;position:absolute;bottom:0;}
-.shelf-divider{height:1.5px;background:var(--color-border-tertiary);border-radius:1px;margin:12px 0;}
-.label-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
-.tier-label{font-size:11px;color:var(--color-text-tertiary);letter-spacing:0.06em;text-transform:uppercase;}
-.count-badge{font-size:13px;font-weight:500;color:#993556;background:#FBEAF0;padding:3px 10px;border-radius:12px;}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:1.25rem;}
-.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;text-align:center;}
-.stat-val{font-size:20px;font-weight:500;color:var(--color-text-primary);}
-.stat-lbl{font-size:11px;color:var(--color-text-tertiary);margin-top:2px;}
-.controls{display:flex;gap:8px;margin-top:1.25rem;}
-.btn{flex:1;padding:10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px;cursor:pointer;transition:background 0.12s;}
-.btn:hover{background:var(--color-background-secondary);}
-.btn.primary{background:#FBEAF0;border-color:#F4C0D1;color:#993556;}
-.btn.primary:hover{background:#F4C0D1;}
-.btn:disabled{opacity:0.4;cursor:default;}
-.milestone{margin-top:1rem;padding:10px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center;gap:8px;min-height:40px;}
-.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.tier-row{margin-bottom:12px;}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pink-50: #f6d6dc;
+    --pink-100: #eec9d2;
+    --pink-400: #bf898b;
+    --pink-600: #aa696c;
+    --purple-50: #d6e4f0;
+    --purple-200: #7fb3d5;
+    --purple-400: #7F77DD;
+    --purple-600: #1e4069;
+    --green-50: #f1d7b6;
+    --green-400: #e8c1a0;
+    --green-600: #c28665;
+    --amber-50: #FAEEDA;
+    --amber-400: #BA7517;
+    --teal-50: #c19977;
+    --teal-400: #c28665;
+    --teal-600: #8e593c;
+    --gray-100: #D3D1C7;
+    --gray-200: #B4B2A9;
+    --cream: #FDF8F4;
+    --ink: #1a1614;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 460px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-top: 1rem;
+  }
+
+  .brand {
+    font-family: 'Lora', serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    color: var(--pink-600);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-family: 'Lora', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: var(--gray-200);
+    margin-top: 6px;
+    letter-spacing: 0.06em;
+  }
+
+  /* Glass case */
+  .case-wrap {
+    background: #fff;
+    border: 1px solid var(--pink-100);
+    border-radius: 20px;
+    padding: 20px 18px 16px;
+    position: relative;
+  }
+
+  .case-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .tier-name {
+    font-family: 'Lora', serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+  }
+
+  .count-pill {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 12px;
+    border-radius: 20px;
+    background: var(--pink-50);
+    color: var(--pink-600);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .shelf {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .shelf-divider {
+    height: 1px;
+    background: #f0e8e3;
+    margin: 10px 0;
+  }
+
+  .slot {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1.5px dashed var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.3s;
+    cursor: default;
+  }
+
+  .slot.filled {
+    border-style: solid;
+  }
+
+  .macaron {
+    width: 80%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    position: relative;
+    transform: scale(0) rotate(-15deg);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
+  }
+
+  .macaron.show {
+    transform: scale(1) rotate(0deg);
+  }
+
+  .mac-top {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    border-radius: 50% 50% 0 0;
+  }
+
+  .mac-fill {
+    position: absolute;
+    top: 41%; left: 7%; right: 7%;
+    height: 18%;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.7);
+  }
+
+  .mac-bot {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 50%;
+    border-radius: 0 0 50% 50%;
+  }
+
+  /* Stats row */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 1rem;
+  }
+
+  .stat {
+    background: #fff;
+    border: 1px solid #f0e8e3;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'Lora', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .stat-lbl {
+    font-size: 10px;
+    color: var(--gray-200);
+    margin-top: 3px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Milestone */
+  .milestone {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #f0e8e3;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 42px;
+    transition: border-color 0.4s;
+  }
+
+  .ms-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--gray-100);
+    transition: background 0.3s;
+  }
+
+  .ms-text {
+    font-size: 12px;
+    color: #888780;
+    line-height: 1.4;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  button {
+    flex: 1;
+    padding: 11px 8px;
+    border-radius: 10px;
+    border: 1px solid #e8ddd8;
+    background: #fff;
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, opacity 0.2s;
+  }
+
+  button:hover { background: #faf5f2; }
+
+  button.primary {
+    background: var(--pink-50);
+    border-color: var(--pink-100);
+    color: var(--pink-600);
+    font-weight: 500;
+  }
+
+  button.primary:hover { background: var(--pink-100); }
+  button:disabled { opacity: 0.35; cursor: default; }
+
+  /* Progress bar */
+  .progress-wrap {
+    margin-top: 10px;
+  }
+
+  .progress-track {
+    height: 4px;
+    background: #f0e8e3;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--pink-400);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+
+  .progress-labels span {
+    font-size: 11px;
+    color: var(--gray-200);
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 11px;
+    color: var(--gray-100);
+    letter-spacing: 0.08em;
+  }
 </style>
+</head>
+<body>
 
-<div class="wrap">
+<div class="page">
+  <header>
+    <div class="brand">Morsure</div>
+    <h1>Refill collection</h1>
+    <p class="subtitle">Each refill earns one macaron in your case</p>
+  </header>
 
-<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1rem;">
-  <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);">Refill collection</div>
-  <div style="font-size:12px;color:var(--color-text-secondary);" id="overall-label">0 of 15 macarons</div>
-</div>
+  <div class="case-wrap">
+    <div class="case-label">
+      <span class="tier-name" id="tier-name">Petal tier</span>
+      <span class="count-pill" id="count-pill">0 / 15</span>
+    </div>
 
-<div class="case-outer">
-
-  <div class="tier-row" id="tier0">
-    <div class="case-shelf" id="shelf0"></div>
+    <div class="shelf" id="shelf0"></div>
+    <div class="shelf-divider"></div>
+    <div class="shelf" id="shelf1"></div>
+    <div class="shelf-divider"></div>
+    <div class="shelf" id="shelf2"></div>
   </div>
-  <div class="shelf-divider"></div>
-  <div class="tier-row" id="tier1">
-    <div class="case-shelf" id="shelf1"></div>
+
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-labels">
+      <span id="progress-left">0 refills</span>
+      <span>15 = free balm</span>
+    </div>
   </div>
-  <div class="shelf-divider"></div>
-  <div class="tier-row" id="tier2">
-    <div class="case-shelf" id="shelf2"></div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val" id="s-refills">0</div>
+      <div class="stat-lbl">Refills</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="s-petals">0</div>
+      <div class="stat-lbl">Petals</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="s-saved">0g</div>
+      <div class="stat-lbl">Saved</div>
+    </div>
   </div>
 
-  <div class="label-row">
-    <span class="tier-label" id="tier-name">Petal tier</span>
-    <span class="count-badge" id="tier-badge">0 / 15</span>
+  <div class="milestone" id="milestone">
+    <div class="ms-dot" id="ms-dot"></div>
+    <span class="ms-text" id="ms-text">Scan your first refill to start your collection</span>
   </div>
-</div>
 
-<div class="stats">
-  <div class="stat"><div class="stat-val" id="s-refills">0</div><div class="stat-lbl">refills</div></div>
-  <div class="stat"><div class="stat-val" id="s-petals">0</div><div class="stat-lbl">petals earned</div></div>
-  <div class="stat"><div class="stat-val" id="s-saved">0g</div><div class="stat-lbl">packaging saved</div></div>
-</div>
+  <div class="controls">
+    <button class="primary" id="btn-add">+ Log refill</button>
+    <button id="btn-undo" disabled>Undo</button>
+    <button id="btn-reset">Reset</button>
+  </div>
 
-<div class="milestone" id="milestone-row">
-  <div class="dot" style="background:#D3D1C7;"></div>
-  <span id="milestone-text">Scan your first refill to start your collection</span>
-</div>
-
-<div class="controls">
-  <button class="btn primary" id="btn-add" onclick="addRefill()">+ Log refill</button>
-  <button class="btn" id="btn-undo" onclick="undoRefill()" disabled>Undo</button>
-  <button class="btn" onclick="resetAll()">Reset</button>
-</div>
-
+  <footer>morsure &nbsp;·&nbsp; macaron perfume balms</footer>
 </div>
 
 <script>
 const TOTAL = 15;
 const FLAVOURS = [
-  {name:'Miutine', top:'#ED93B1', bot:'#D4537E', fill:'#FBEAF0'},
-  {name:'Fleur de Lait', top:'#d7a995', bot:'#ecd2c1', fill:'#EEEDFE'},
-  {name:'L\'Eau Bleue', top:'#c28665', bot:'#bf898b', fill:'#EAF3DE'},
-  {name:'Rosee', top:'#FAC775', bot:'#BA7517', fill:'#FAEEDA'},
-  {name:'Lost in Grace', top:'#ecd2c1', bot:'#6e8bb0', fill:'#E1F5EE'},
+  { top: '#ED93B1', bot: '#D4537E' },
+  { top: '#AFA9EC', bot: '#7F77DD' },
+  { top: '#97C459', bot: '#3B6D11' },
+  { top: '#FAC775', bot: '#BA7517' },
+  { top: '#9FE1CB', bot: '#1D9E75' },
 ];
 const MILESTONES = [
-  {at:1, dot:'#D4537E', text:'First refill — welcome to the collection'},
-  {at:3, dot:'#7F77DD', text:'3 refills — Petal tier unlocked'},
-  {at:5, dot:'#D4537E', text:'5 refills — complimentary tote bag earned'},
-  {at:8, dot:'#1D9E75', text:'8 refills — Bloom tier reached, 10% off next order'},
-  {at:10, dot:'#BA7517', text:'10 refills — half a case! Farm patch upgraded'},
-  {at:12, dot:'#534AB7', text:'12 refills — Rare tier unlocked'},
-  {at:15, dot:'#993556', text:'15 refills — full case! Free limited edition balm'},
+  { at: 1,  dot: '#D4537E', text: 'First refill — welcome to the collection' },
+  { at: 3,  dot: '#7F77DD', text: '3 refills — Petal tier unlocked' },
+  { at: 5,  dot: '#D4537E', text: '5 refills — complimentary tote bag earned' },
+  { at: 8,  dot: '#1D9E75', text: '8 refills — Bloom tier reached, 10% off next order' },
+  { at: 10, dot: '#BA7517', text: '10 refills — half a case! Farm patch upgraded' },
+  { at: 12, dot: '#534AB7', text: '12 refills — Rare tier unlocked' },
+  { at: 15, dot: '#993556', text: '15 refills — full case! Free limited edition balm' },
 ];
 const TIERS = [
-  {min:0, name:'Petal tier', color:'#D4537E'},
-  {min:5, name:'Bloom tier', color:'#1D9E75'},
-  {min:10, name:'Rare tier', color:'#534AB7'},
+  { min: 0,  name: 'Petal tier',  color: '#D4537E', bg: '#FBEAF0' },
+  { min: 5,  name: 'Bloom tier',  color: '#1D9E75', bg: '#E1F5EE' },
+  { min: 10, name: 'Rare tier',   color: '#534AB7', bg: '#EEEDFE' },
 ];
 
 let count = 0;
 
-function getTier(n){
-  for(let i=TIERS.length-1;i>=0;i--) if(n>=TIERS[i].min) return TIERS[i];
+function getTier(n) {
+  for (let i = TIERS.length - 1; i >= 0; i--) {
+    if (n >= TIERS[i].min) return TIERS[i];
+  }
   return TIERS[0];
 }
 
-function buildShelves(){
-  for(let s=0;s<3;s++){
-    const shelf = document.getElementById('shelf'+s);
-    shelf.innerHTML='';
-    for(let i=0;i<5;i++){
-      const idx = s*5+i;
-      const slot = document.createElement('div');
-      slot.className='slot';
-      slot.id='slot'+idx;
-      const mac = document.createElement('div');
-      mac.className='macaron';
-      mac.id='mac'+idx;
+function buildShelves() {
+  for (let s = 0; s < 3; s++) {
+    const shelf = document.getElementById('shelf' + s);
+    shelf.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const idx = s * 5 + i;
       const f = FLAVOURS[idx % FLAVOURS.length];
-      mac.innerHTML=`<div class="macaron-top" style="background:${f.top};"></div><div class="macaron-fill" style="background:${f.fill};"></div><div class="macaron-bot" style="background:${f.bot};"></div>`;
+      const slot = document.createElement('div');
+      slot.className = 'slot';
+      slot.id = 'slot' + idx;
+      const mac = document.createElement('div');
+      mac.className = 'macaron';
+      mac.id = 'mac' + idx;
+      mac.innerHTML = `
+        <div class="mac-top" style="background:${f.top};"></div>
+        <div class="mac-fill"></div>
+        <div class="mac-bot" style="background:${f.bot};"></div>`;
       slot.appendChild(mac);
       shelf.appendChild(slot);
     }
   }
 }
 
-function render(){
-  for(let i=0;i<TOTAL;i++){
-    const mac = document.getElementById('mac'+i);
-    const slot = document.getElementById('slot'+i);
+function render() {
+  for (let i = 0; i < TOTAL; i++) {
+    const mac = document.getElementById('mac' + i);
+    const slot = document.getElementById('slot' + i);
     const f = FLAVOURS[i % FLAVOURS.length];
-    if(i < count){
+    if (i < count) {
       mac.classList.add('show');
       slot.classList.add('filled');
       slot.style.borderColor = f.bot;
@@ -143,51 +442,61 @@ function render(){
       slot.style.borderColor = '';
     }
   }
+
   const tier = getTier(count);
   document.getElementById('tier-name').textContent = tier.name;
-  document.getElementById('tier-badge').textContent = count + ' / ' + TOTAL;
-  document.getElementById('tier-badge').style.color = tier.color;
-  document.getElementById('tier-badge').style.background = tier.color + '18';
-  document.getElementById('overall-label').textContent = count + ' of ' + TOTAL + ' macarons';
+
+  const pill = document.getElementById('count-pill');
+  pill.textContent = count + ' / ' + TOTAL;
+  pill.style.background = tier.bg;
+  pill.style.color = tier.color;
+
   document.getElementById('s-refills').textContent = count;
   document.getElementById('s-petals').textContent = count * 50;
   document.getElementById('s-saved').textContent = (count * 12) + 'g';
+  document.getElementById('progress-fill').style.width = Math.round(count / TOTAL * 100) + '%';
+  document.getElementById('progress-left').textContent = count + ' refills';
   document.getElementById('btn-undo').disabled = count === 0;
   document.getElementById('btn-add').disabled = count >= TOTAL;
+
   const ms = [...MILESTONES].reverse().find(m => m.at <= count);
   const next = MILESTONES.find(m => m.at > count);
-  const row = document.getElementById('milestone-row');
-  const dot = row.querySelector('.dot');
-  if(ms){
-    dot.style.background = ms.dot;
-    document.getElementById('milestone-text').textContent = ms.text;
-    row.style.borderColor = ms.dot + '55';
-  }
-  if(next && count < TOTAL){
-    document.getElementById('milestone-text').textContent = (ms ? ms.text + ' · ' : '') + (next.at - count) + ' more to: ' + next.text.split('—')[1].trim();
-  }
-  if(count === 0){
-    dot.style.background='#D3D1C7';
-    document.getElementById('milestone-text').textContent='Scan your first refill to start your collection';
-    row.style.borderColor='';
-  }
-}
+  const dot = document.getElementById('ms-dot');
+  const txt = document.getElementById('ms-text');
+  const box = document.getElementById('milestone');
 
-function addRefill(){
-  if(count >= TOTAL) return;
-  count++;
-  render();
-}
-function undoRefill(){
-  if(count <= 0) return;
-  count--;
-  render();
-}
-function resetAll(){
-  count=0;
-  render();
+  if (count === 0) {
+    dot.style.background = '#D3D1C7';
+    txt.textContent = 'Scan your first refill to start your collection';
+    box.style.borderColor = '#f0e8e3';
+  } else if (ms) {
+    dot.style.background = ms.dot;
+    box.style.borderColor = ms.dot + '55';
+    if (next && count < TOTAL) {
+      txt.textContent = ms.text + ' · ' + (next.at - count) + ' more to unlock next reward';
+    } else {
+      txt.textContent = ms.text;
+    }
+  }
 }
 
 buildShelves();
 render();
+
+document.getElementById('btn-add').addEventListener('click', function() {
+  if (count >= TOTAL) return;
+  count++;
+  render();
+});
+document.getElementById('btn-undo').addEventListener('click', function() {
+  if (count <= 0) return;
+  count--;
+  render();
+});
+document.getElementById('btn-reset').addEventListener('click', function() {
+  count = 0;
+  render();
+});
 </script>
+</body>
+</html>
