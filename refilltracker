@@ -1,0 +1,193 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Futura;}
+.wrap{padding:1.5rem;max-width:480px;margin:0 auto;}
+.case-outer{border:1.5px solid var(--color-border-secondary);border-radius:16px;padding:20px 18px 14px;background:var(--color-background-primary);position:relative;}
+.case-shelf{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;min-height:52px;}
+.slot{width:100%;aspect-ratio:1;border-radius:50%;border:1.5px dashed var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;transition:all 0.35s cubic-bezier(.34,1.56,.64,1);}
+.slot.filled{border-style:solid;}
+.macaron{width:78%;aspect-ratio:1;border-radius:50%;position:relative;transition:all 0.35s cubic-bezier(.34,1.56,.64,1);transform:scale(0);}
+.macaron.show{transform:scale(1);}
+.macaron-top{width:100%;height:50%;border-radius:50% 50% 0 0;position:absolute;top:0;}
+.macaron-fill{width:88%;height:22%;background:#fff9f0;position:absolute;top:39%;left:6%;border-radius:2px;}
+.macaron-bot{width:100%;height:50%;border-radius:0 0 50% 50%;position:absolute;bottom:0;}
+.shelf-divider{height:1.5px;background:var(--color-border-tertiary);border-radius:1px;margin:12px 0;}
+.label-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.tier-label{font-size:11px;color:var(--color-text-tertiary);letter-spacing:0.06em;text-transform:uppercase;}
+.count-badge{font-size:13px;font-weight:500;color:#993556;background:#FBEAF0;padding:3px 10px;border-radius:12px;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:1.25rem;}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;text-align:center;}
+.stat-val{font-size:20px;font-weight:500;color:var(--color-text-primary);}
+.stat-lbl{font-size:11px;color:var(--color-text-tertiary);margin-top:2px;}
+.controls{display:flex;gap:8px;margin-top:1.25rem;}
+.btn{flex:1;padding:10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px;cursor:pointer;transition:background 0.12s;}
+.btn:hover{background:var(--color-background-secondary);}
+.btn.primary{background:#FBEAF0;border-color:#F4C0D1;color:#993556;}
+.btn.primary:hover{background:#F4C0D1;}
+.btn:disabled{opacity:0.4;cursor:default;}
+.milestone{margin-top:1rem;padding:10px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center;gap:8px;min-height:40px;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.tier-row{margin-bottom:12px;}
+</style>
+
+<div class="wrap">
+
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1rem;">
+  <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);">Refill collection</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);" id="overall-label">0 of 15 macarons</div>
+</div>
+
+<div class="case-outer">
+
+  <div class="tier-row" id="tier0">
+    <div class="case-shelf" id="shelf0"></div>
+  </div>
+  <div class="shelf-divider"></div>
+  <div class="tier-row" id="tier1">
+    <div class="case-shelf" id="shelf1"></div>
+  </div>
+  <div class="shelf-divider"></div>
+  <div class="tier-row" id="tier2">
+    <div class="case-shelf" id="shelf2"></div>
+  </div>
+
+  <div class="label-row">
+    <span class="tier-label" id="tier-name">Petal tier</span>
+    <span class="count-badge" id="tier-badge">0 / 15</span>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val" id="s-refills">0</div><div class="stat-lbl">refills</div></div>
+  <div class="stat"><div class="stat-val" id="s-petals">0</div><div class="stat-lbl">petals earned</div></div>
+  <div class="stat"><div class="stat-val" id="s-saved">0g</div><div class="stat-lbl">packaging saved</div></div>
+</div>
+
+<div class="milestone" id="milestone-row">
+  <div class="dot" style="background:#D3D1C7;"></div>
+  <span id="milestone-text">Scan your first refill to start your collection</span>
+</div>
+
+<div class="controls">
+  <button class="btn primary" id="btn-add" onclick="addRefill()">+ Log refill</button>
+  <button class="btn" id="btn-undo" onclick="undoRefill()" disabled>Undo</button>
+  <button class="btn" onclick="resetAll()">Reset</button>
+</div>
+
+</div>
+
+<script>
+const TOTAL = 15;
+const FLAVOURS = [
+  {name:'Miutine', top:'#ED93B1', bot:'#D4537E', fill:'#FBEAF0'},
+  {name:'Fleur de Lait', top:'#d7a995', bot:'#ecd2c1', fill:'#EEEDFE'},
+  {name:'L\'Eau Bleue', top:'#c28665', bot:'#bf898b', fill:'#EAF3DE'},
+  {name:'Rosee', top:'#FAC775', bot:'#BA7517', fill:'#FAEEDA'},
+  {name:'Lost in Grace', top:'#ecd2c1', bot:'#6e8bb0', fill:'#E1F5EE'},
+];
+const MILESTONES = [
+  {at:1, dot:'#D4537E', text:'First refill — welcome to the collection'},
+  {at:3, dot:'#7F77DD', text:'3 refills — Petal tier unlocked'},
+  {at:5, dot:'#D4537E', text:'5 refills — complimentary tote bag earned'},
+  {at:8, dot:'#1D9E75', text:'8 refills — Bloom tier reached, 10% off next order'},
+  {at:10, dot:'#BA7517', text:'10 refills — half a case! Farm patch upgraded'},
+  {at:12, dot:'#534AB7', text:'12 refills — Rare tier unlocked'},
+  {at:15, dot:'#993556', text:'15 refills — full case! Free limited edition balm'},
+];
+const TIERS = [
+  {min:0, name:'Petal tier', color:'#D4537E'},
+  {min:5, name:'Bloom tier', color:'#1D9E75'},
+  {min:10, name:'Rare tier', color:'#534AB7'},
+];
+
+let count = 0;
+
+function getTier(n){
+  for(let i=TIERS.length-1;i>=0;i--) if(n>=TIERS[i].min) return TIERS[i];
+  return TIERS[0];
+}
+
+function buildShelves(){
+  for(let s=0;s<3;s++){
+    const shelf = document.getElementById('shelf'+s);
+    shelf.innerHTML='';
+    for(let i=0;i<5;i++){
+      const idx = s*5+i;
+      const slot = document.createElement('div');
+      slot.className='slot';
+      slot.id='slot'+idx;
+      const mac = document.createElement('div');
+      mac.className='macaron';
+      mac.id='mac'+idx;
+      const f = FLAVOURS[idx % FLAVOURS.length];
+      mac.innerHTML=`<div class="macaron-top" style="background:${f.top};"></div><div class="macaron-fill" style="background:${f.fill};"></div><div class="macaron-bot" style="background:${f.bot};"></div>`;
+      slot.appendChild(mac);
+      shelf.appendChild(slot);
+    }
+  }
+}
+
+function render(){
+  for(let i=0;i<TOTAL;i++){
+    const mac = document.getElementById('mac'+i);
+    const slot = document.getElementById('slot'+i);
+    const f = FLAVOURS[i % FLAVOURS.length];
+    if(i < count){
+      mac.classList.add('show');
+      slot.classList.add('filled');
+      slot.style.borderColor = f.bot;
+    } else {
+      mac.classList.remove('show');
+      slot.classList.remove('filled');
+      slot.style.borderColor = '';
+    }
+  }
+  const tier = getTier(count);
+  document.getElementById('tier-name').textContent = tier.name;
+  document.getElementById('tier-badge').textContent = count + ' / ' + TOTAL;
+  document.getElementById('tier-badge').style.color = tier.color;
+  document.getElementById('tier-badge').style.background = tier.color + '18';
+  document.getElementById('overall-label').textContent = count + ' of ' + TOTAL + ' macarons';
+  document.getElementById('s-refills').textContent = count;
+  document.getElementById('s-petals').textContent = count * 50;
+  document.getElementById('s-saved').textContent = (count * 12) + 'g';
+  document.getElementById('btn-undo').disabled = count === 0;
+  document.getElementById('btn-add').disabled = count >= TOTAL;
+  const ms = [...MILESTONES].reverse().find(m => m.at <= count);
+  const next = MILESTONES.find(m => m.at > count);
+  const row = document.getElementById('milestone-row');
+  const dot = row.querySelector('.dot');
+  if(ms){
+    dot.style.background = ms.dot;
+    document.getElementById('milestone-text').textContent = ms.text;
+    row.style.borderColor = ms.dot + '55';
+  }
+  if(next && count < TOTAL){
+    document.getElementById('milestone-text').textContent = (ms ? ms.text + ' · ' : '') + (next.at - count) + ' more to: ' + next.text.split('—')[1].trim();
+  }
+  if(count === 0){
+    dot.style.background='#D3D1C7';
+    document.getElementById('milestone-text').textContent='Scan your first refill to start your collection';
+    row.style.borderColor='';
+  }
+}
+
+function addRefill(){
+  if(count >= TOTAL) return;
+  count++;
+  render();
+}
+function undoRefill(){
+  if(count <= 0) return;
+  count--;
+  render();
+}
+function resetAll(){
+  count=0;
+  render();
+}
+
+buildShelves();
+render();
+</script>
